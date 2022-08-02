@@ -1,0 +1,4 @@
+.env
+# Project exclude paths
+/target/
+/.idea
