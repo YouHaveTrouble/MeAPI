@@ -2,7 +2,6 @@ package steam;
 
 import endpoints.OnlineHandler;
 import endpoints.SteamHandler;
-import endpoints.TestHandler;
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -26,7 +25,6 @@ public class GetSteamDataTask extends TimerTask {
             URI uri = URI.create("https://steamcommunity.com/id/"+steamId);
             Connection connection = Jsoup.connect(uri.toString());
             Document document = connection.get();
-            TestHandler.html = document.html();
             Elements onlineStatusElement = document.getElementsByClass("profile_in_game_header");
             OnlineHandler.steamStatus = SteamOnlineStatus.statusFromString(onlineStatusElement.get(0).text());
             Elements gameElement = document.getElementsByClass("profile_in_game_name");
