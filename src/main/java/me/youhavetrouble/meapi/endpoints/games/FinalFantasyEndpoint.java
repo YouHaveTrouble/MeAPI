@@ -1,4 +1,4 @@
-package me.youhavetrouble.meapi.games;
+package me.youhavetrouble.meapi.endpoints.games;
 
 import com.sun.net.httpserver.HttpExchange;
 import me.youhavetrouble.meapi.endpoints.Endpoint;

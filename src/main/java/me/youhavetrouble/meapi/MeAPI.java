@@ -5,7 +5,7 @@ import me.youhavetrouble.meapi.discord.DiscordBot;
 import me.youhavetrouble.meapi.endpoints.Endpoint;
 import me.youhavetrouble.meapi.endpoints.OnlineEndpoint;
 import me.youhavetrouble.meapi.endpoints.RootHandler;
-import me.youhavetrouble.meapi.games.FinalFantasyEndpoint;
+import me.youhavetrouble.meapi.endpoints.games.FinalFantasyEndpoint;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
