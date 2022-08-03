@@ -1,4 +1,4 @@
-package endpoints;
+package me.youhavetrouble.meapi.endpoints;
 
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;

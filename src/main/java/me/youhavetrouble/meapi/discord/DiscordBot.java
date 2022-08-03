@@ -1,23 +1,23 @@
-package discord;
+package me.youhavetrouble.meapi.discord;
 
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
+import net.dv8tion.jda.api.OnlineStatus;
+import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.dv8tion.jda.api.utils.cache.CacheFlag;
 
 import javax.security.auth.login.LoginException;
-import java.util.Timer;
 
 public class DiscordBot extends Thread {
 
     private final String token;
-    private final String userId;
 
     private JDA jda;
 
-    public DiscordBot(String token, String userId) {
+    public DiscordBot(String token) {
         this.token = token;
-        this.userId = userId;
     }
 
     @Override
@@ -28,16 +28,20 @@ public class DiscordBot extends Thread {
             builder.enableIntents(GatewayIntent.GUILD_MEMBERS, GatewayIntent.GUILD_PRESENCES);
             jda = builder.build();
             jda.setAutoReconnect(true);
-            if (userId != null) updateOnlineData();
         } catch (LoginException e) {
             System.out.println("Discord bot failed to log in");
         }
         super.run();
     }
 
-    private void updateOnlineData() {
-        Timer timer = new Timer("OnlineStatusTimer", true);
-        timer.scheduleAtFixedRate(new RefreshOnlineStatusTask(userId, this), 1000, 1000*30);
+    public OnlineStatus getOnlineStatus(String userTag) {
+        for (Guild guild : jda.getGuilds()) {
+            Member member = guild.getMemberByTag(userTag);
+            if (member != null) {
+                return member.getOnlineStatus();
+            }
+        }
+        return null;
     }
 
     public JDA getJda() {
