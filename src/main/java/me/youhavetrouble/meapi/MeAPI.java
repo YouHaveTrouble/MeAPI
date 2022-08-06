@@ -13,6 +13,8 @@ import java.net.InetSocketAddress;
 import java.util.HashSet;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadPoolExecutor;
 
 public class MeAPI {
 
@@ -51,8 +53,8 @@ public class MeAPI {
             }, 2000, endpoint.refreshInterval());
             timers.add(timer);
         });
-
-        server.setExecutor(null);
+        ThreadPoolExecutor threadPoolExecutor = (ThreadPoolExecutor) Executors.newFixedThreadPool(16);
+        server.setExecutor(threadPoolExecutor);
         System.out.println("Server started at " + port);
         server.start();
     }

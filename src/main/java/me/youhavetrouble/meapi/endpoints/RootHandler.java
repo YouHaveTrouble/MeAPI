@@ -16,6 +16,7 @@ public class RootHandler implements HttpHandler {
     public void handle(HttpExchange httpExchange) throws IOException {
         OutputStream outputStream = httpExchange.getResponseBody();
         String htmlResponse = rootHtml;
+        httpExchange.getResponseHeaders().set("Content-Type", "text/html");
         httpExchange.sendResponseHeaders(200, htmlResponse.length());
         outputStream.write(htmlResponse.getBytes());
         outputStream.flush();
