@@ -1,6 +1,7 @@
 package me.youhavetrouble.meapi;
 
 import com.sun.net.httpserver.HttpServer;
+import io.github.cdimascio.dotenv.Dotenv;
 import me.youhavetrouble.meapi.discord.DiscordBot;
 import me.youhavetrouble.meapi.endpoints.Endpoint;
 import me.youhavetrouble.meapi.endpoints.OnlineEndpoint;
@@ -15,7 +16,9 @@ import java.util.TimerTask;
 
 public class MeAPI {
 
-    static int port = Integer.parseInt(System.getenv("APP_PORT"));
+    private static final Dotenv env = Dotenv.load();
+
+    static int port = Integer.parseInt(getEnvValue("APP_PORT"));
 
     private static DiscordBot discordBot;
 
@@ -24,7 +27,7 @@ public class MeAPI {
 
     public static void main(String[] args) throws IOException {
 
-        String discordBotKey = System.getenv("DISCORD_BOT_KEY");
+        String discordBotKey = getEnvValue("DISCORD_BOT_KEY");
 
         if (discordBotKey != null) {
             discordBot = new DiscordBot(discordBotKey);
@@ -32,11 +35,9 @@ public class MeAPI {
         }
 
         endpoints.add(new OnlineEndpoint());
-        if (System.getenv("FFXIV_CHARACTER_ID") != null) endpoints.add(new FinalFantasyEndpoint());
+        if (getEnvValue("FFXIV_CHARACTER_ID") != null) endpoints.add(new FinalFantasyEndpoint());
 
         HttpServer server = HttpServer.create(new InetSocketAddress(port), 0);
-        System.out.println("Server started at " + port);
-
         server.createContext("/", new RootHandler());
 
         endpoints.forEach(endpoint -> {
@@ -52,10 +53,15 @@ public class MeAPI {
         });
 
         server.setExecutor(null);
+        System.out.println("Server started at " + port);
         server.start();
     }
 
     public static DiscordBot getDiscordBot() {
         return discordBot;
+    }
+
+    public static String getEnvValue(String string) {
+        return System.getenv(string) != null ? System.getenv(string) : env.get(string);
     }
 }

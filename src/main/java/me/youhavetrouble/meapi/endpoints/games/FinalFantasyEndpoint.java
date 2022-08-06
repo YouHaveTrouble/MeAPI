@@ -1,6 +1,7 @@
 package me.youhavetrouble.meapi.endpoints.games;
 
 import com.sun.net.httpserver.HttpExchange;
+import me.youhavetrouble.meapi.MeAPI;
 import me.youhavetrouble.meapi.endpoints.Endpoint;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -17,7 +18,7 @@ public class FinalFantasyEndpoint implements Endpoint {
     private String ffxivData = "{}";
 
     public FinalFantasyEndpoint() {
-        characterId = System.getenv("FFXIV_CHARACTER_ID");
+        characterId = MeAPI.getEnvValue("FFXIV_CHARACTER_ID");
     }
 
     @Override
@@ -75,6 +76,7 @@ public class FinalFantasyEndpoint implements Endpoint {
 
             return newData;
         } catch (IOException e) {
+            System.out.println(e.getMessage());
             return new JSONObject();
         }
     }

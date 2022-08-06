@@ -18,8 +18,8 @@ public class OnlineEndpoint implements Endpoint {
     private String cachedResponse = "{}";
 
     public OnlineEndpoint() {
-        discordUserTag = System.getenv("DISCORD_USER_TAG");
-        steamId = System.getenv("STEAM_NAME");
+        discordUserTag = MeAPI.getEnvValue("DISCORD_USER_TAG");
+        steamId = MeAPI.getEnvValue("STEAM_NAME");
     }
 
     @Override
