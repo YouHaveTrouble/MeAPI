@@ -12,11 +12,10 @@ import java.io.OutputStream;
 
 public class OnlineEndpoint implements Endpoint {
 
-    private static OnlineStatus discordStatus;
-    public static SteamStatus steamStatus;
-
     private final String discordUserTag;
     private final String steamId;
+
+    private String cachedResponse = "{}";
 
     public OnlineEndpoint() {
         discordUserTag = System.getenv("DISCORD_USER_TAG");
@@ -26,13 +25,7 @@ public class OnlineEndpoint implements Endpoint {
     @Override
     public void handle(HttpExchange httpExchange) throws IOException {
         OutputStream outputStream = httpExchange.getResponseBody();
-        JSONObject object = new JSONObject();
-        object.put("discord", discordStatus == null ? JSONObject.NULL : discordStatus);
-        JSONObject steam = new JSONObject();
-        steam.put("status", steamStatus.getStatus() == null ? JSONObject.NULL : steamStatus.getStatus());
-        steam.put("game", steamStatus.getGame() == null ? JSONObject.NULL : steamStatus.getGame());
-        object.put("steam", steam);
-        String htmlResponse = object.toString();
+        String htmlResponse = cachedResponse;
         httpExchange.getResponseHeaders().set("Content-Type", "application/json");
         httpExchange.sendResponseHeaders(200, htmlResponse.length());
         outputStream.write(htmlResponse.getBytes());
@@ -47,8 +40,16 @@ public class OnlineEndpoint implements Endpoint {
 
     @Override
     public void refreshData() {
-        discordStatus = MeAPI.getDiscordBot().getOnlineStatus(discordUserTag);
-        steamStatus = SteamCrawler.getStatus(steamId);
+        OnlineStatus discordStatus = MeAPI.getDiscordBot().getOnlineStatus(discordUserTag);
+        SteamStatus steamStatus = SteamCrawler.getStatus(steamId);
+
+        JSONObject object = new JSONObject();
+        object.put("discord", discordStatus == null ? JSONObject.NULL : discordStatus);
+        JSONObject steam = new JSONObject();
+        steam.put("status", steamStatus.getStatus() == null ? JSONObject.NULL : steamStatus.getStatus());
+        steam.put("game", steamStatus.getGame() == null ? JSONObject.NULL : steamStatus.getGame());
+        object.put("steam", steam);
+        cachedResponse = object.toString();
     }
 
     @Override

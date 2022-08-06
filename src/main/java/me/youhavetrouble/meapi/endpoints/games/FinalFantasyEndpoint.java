@@ -14,7 +14,7 @@ import java.util.Scanner;
 public class FinalFantasyEndpoint implements Endpoint {
 
     private final String characterId;
-    private JSONObject ffxivData = new JSONObject();
+    private String ffxivData = "{}";
 
     public FinalFantasyEndpoint() {
         characterId = System.getenv("FFXIV_CHARACTER_ID");
@@ -23,7 +23,7 @@ public class FinalFantasyEndpoint implements Endpoint {
     @Override
     public void handle(HttpExchange httpExchange) throws IOException {
         OutputStream outputStream = httpExchange.getResponseBody();
-        String htmlResponse = ffxivData.toString();
+        String htmlResponse = ffxivData;
         httpExchange.getResponseHeaders().set("Content-Type", "application/json");
         httpExchange.sendResponseHeaders(200, htmlResponse.length());
         outputStream.write(htmlResponse.getBytes());
@@ -38,7 +38,7 @@ public class FinalFantasyEndpoint implements Endpoint {
 
     @Override
     public void refreshData() {
-        this.ffxivData = getData(characterId);
+        this.ffxivData = getData(characterId).toString();
     }
 
     @Override
@@ -75,7 +75,7 @@ public class FinalFantasyEndpoint implements Endpoint {
 
             return newData;
         } catch (IOException e) {
-            return null;
+            return new JSONObject();
         }
     }
 }

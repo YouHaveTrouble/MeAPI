@@ -15,7 +15,7 @@ import java.util.TimerTask;
 
 public class MeAPI {
 
-    static int port = 6660;
+    static int port = Integer.parseInt(System.getenv("APP_PORT"));
 
     private static DiscordBot discordBot;
 
@@ -32,7 +32,7 @@ public class MeAPI {
         }
 
         endpoints.add(new OnlineEndpoint());
-        endpoints.add(new FinalFantasyEndpoint());
+        if (System.getenv("FFXIV_CHARACTER_ID") != null) endpoints.add(new FinalFantasyEndpoint());
 
         HttpServer server = HttpServer.create(new InetSocketAddress(port), 0);
         System.out.println("Server started at " + port);

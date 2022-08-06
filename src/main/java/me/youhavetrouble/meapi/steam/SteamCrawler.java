@@ -22,7 +22,10 @@ public class SteamCrawler {
                     gameElement.isEmpty() ? null : gameElement.get(0).text()
             );
         } catch (IOException ignored) {
-            return null;
+            return new SteamStatus(
+                    SteamOnlineStatus.OFFLINE,
+                    null
+            );
         }
     }
 
