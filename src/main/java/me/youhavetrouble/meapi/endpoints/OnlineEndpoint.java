@@ -40,7 +40,12 @@ public class OnlineEndpoint implements Endpoint {
 
     @Override
     public void refreshData() {
-        OnlineStatus discordStatus = MeAPI.getDiscordBot().getOnlineStatus(discordUserTag);
+        OnlineStatus discordStatus;
+        if (MeAPI.getDiscordBot().getJda() != null) {
+            discordStatus = MeAPI.getDiscordBot().getOnlineStatus(discordUserTag);
+        } else {
+            discordStatus = OnlineStatus.OFFLINE;
+        }
         SteamStatus steamStatus = SteamCrawler.getStatus(steamId);
 
         JSONObject object = new JSONObject();
