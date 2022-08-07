@@ -17,6 +17,12 @@ public class SteamCrawler {
             Document document = connection.get();
             Elements onlineStatusElement = document.getElementsByClass("profile_in_game_header");
             Elements gameElement = document.getElementsByClass("profile_in_game_name");
+            if (onlineStatusElement.isEmpty() || gameElement.isEmpty()) {
+                return new SteamStatus(
+                        SteamOnlineStatus.OFFLINE,
+                        null
+                );
+            }
             return new SteamStatus(
                     SteamOnlineStatus.statusFromString(onlineStatusElement.get(0).text()),
                     gameElement.isEmpty() ? null : gameElement.get(0).text()
