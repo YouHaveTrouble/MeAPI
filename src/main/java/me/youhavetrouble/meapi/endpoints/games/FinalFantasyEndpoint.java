@@ -39,7 +39,8 @@ public class FinalFantasyEndpoint implements Endpoint {
 
     @Override
     public void refreshData() {
-        this.ffxivData = getData(characterId).toString();
+        JSONObject newData = getData(characterId);
+        if (newData != null) this.ffxivData = newData.toString();
     }
 
     @Override
@@ -77,7 +78,7 @@ public class FinalFantasyEndpoint implements Endpoint {
             return newData;
         } catch (IOException e) {
             System.out.println(e.getMessage());
-            return new JSONObject();
+            return null;
         }
     }
 }
