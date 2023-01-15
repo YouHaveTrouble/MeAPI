@@ -1,5 +1,6 @@
-package me.youhavetrouble.meapi.discord;
+package me.youhavetrouble.meapi.datacollectors.discord;
 
+import me.youhavetrouble.meapi.MeAPI;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.OnlineStatus;
@@ -15,9 +16,12 @@ public class DiscordBot extends Thread {
     private final String token;
 
     private JDA jda;
+    private final String discordUserTag;
+
 
     public DiscordBot(String token) {
         this.token = token;
+        this.discordUserTag = MeAPI.getEnvValue("DISCORD_USER_TAG");
     }
 
     @Override
@@ -34,14 +38,15 @@ public class DiscordBot extends Thread {
         super.run();
     }
 
-    public OnlineStatus getOnlineStatus(String userTag) {
+    public OnlineStatus getOnlineStatus() {
+        if (discordUserTag == null) return OnlineStatus.OFFLINE;
         for (Guild guild : jda.getGuilds()) {
-            Member member = guild.getMemberByTag(userTag);
+            Member member = guild.getMemberByTag(discordUserTag);
             if (member != null) {
                 return member.getOnlineStatus();
             }
         }
-        return null;
+        return OnlineStatus.OFFLINE;
     }
 
     public JDA getJda() {
