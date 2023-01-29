@@ -15,7 +15,7 @@ public class MeAPI {
 
     public static Logger logger = Logger.getLogger("MeAPI");
     private static final Dotenv env = Dotenv.load();
-    static int port = 80;
+    static int port = getEnvValue("APP_PORT") == null ? 80 : Integer.parseInt(getEnvValue("APP_PORT"));
     private static DiscordBot discordBot;
 
     public static void main(String[] args) throws IOException {
@@ -30,7 +30,6 @@ public class MeAPI {
                 }
             }
         }
-
 
         JankWebServer webServer = JankWebServer.create(port, 16);
 
