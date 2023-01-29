@@ -15,10 +15,22 @@ public class MeAPI {
 
     public static Logger logger = Logger.getLogger("MeAPI");
     private static final Dotenv env = Dotenv.load();
-    static int port = Integer.parseInt(getEnvValue("APP_PORT"));
+    static int port = 80;
     private static DiscordBot discordBot;
 
     public static void main(String[] args) throws IOException {
+
+        for (String arg : args) {
+            if (arg.startsWith("port=")) {
+                arg = arg.replaceFirst("port=", "");
+                try {
+                    port = Integer.parseInt(arg);
+                } catch (NumberFormatException e) {
+                    logger.severe(String.format("Could not parse port number from arg port=%s", arg));
+                }
+            }
+        }
+
 
         JankWebServer webServer = JankWebServer.create(port, 16);
 
