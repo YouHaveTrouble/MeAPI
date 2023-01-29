@@ -14,7 +14,7 @@ import java.util.logging.Logger;
 public class MeAPI {
 
     public static Logger logger = Logger.getLogger("MeAPI");
-    private static final Dotenv env = Dotenv.load();
+    private static final Dotenv env = Dotenv.configure().ignoreIfMissing().load();
     static int port = getEnvValue("APP_PORT") == null ? 80 : Integer.parseInt(getEnvValue("APP_PORT"));
     private static DiscordBot discordBot;
 
