@@ -1,60 +1,55 @@
 package me.youhavetrouble.meapi.endpoints;
 
-import com.sun.net.httpserver.HttpExchange;
+import com.sun.net.httpserver.Headers;
+import me.youhavetrouble.jankwebserver.RequestMethod;
+import me.youhavetrouble.jankwebserver.endpoint.Endpoint;
+import me.youhavetrouble.jankwebserver.response.HttpResponse;
+import me.youhavetrouble.jankwebserver.response.JsonResponse;
 import me.youhavetrouble.meapi.MeAPI;
-import me.youhavetrouble.meapi.steam.SteamCrawler;
-import me.youhavetrouble.meapi.steam.SteamStatus;
+import me.youhavetrouble.meapi.datacollectors.steam.SteamCrawler;
+import me.youhavetrouble.meapi.datacollectors.steam.SteamStatus;
 import net.dv8tion.jda.api.OnlineStatus;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.json.JSONObject;
 
-import java.io.IOException;
-import java.io.OutputStream;
+import java.net.URI;
+import java.util.Map;
+import java.util.TimerTask;
 
-public class OnlineEndpoint implements Endpoint {
+public class OnlineEndpoint implements Endpoint, TimedDataRefresh {
 
-    private final String discordUserTag;
     private final String steamId;
 
-    private String cachedResponse = "{}";
+    private String cachedResponse = null;
 
     public OnlineEndpoint() {
-        discordUserTag = MeAPI.getEnvValue("DISCORD_USER_TAG");
         steamId = MeAPI.getEnvValue("STEAM_NAME");
     }
 
-    @Override
-    public void handle(HttpExchange httpExchange) throws IOException {
-        OutputStream outputStream = httpExchange.getResponseBody();
-        String htmlResponse = cachedResponse;
-        httpExchange.getResponseHeaders().set("Content-Type", "application/json");
-        httpExchange.sendResponseHeaders(200, htmlResponse.length());
-        outputStream.write(htmlResponse.getBytes());
-        outputStream.flush();
-        outputStream.close();
-    }
 
     @Override
-    public String getId() {
-        return "/online";
-    }
+    public TimerTask getTimerTask() {
+        return new TimerTask() {
+            @Override
+            public void run() {
+                OnlineStatus discordStatus;
+                if (MeAPI.getDiscordBot().getJda() != null) {
+                    discordStatus = MeAPI.getDiscordBot().getOnlineStatus();
+                } else {
+                    discordStatus = OnlineStatus.OFFLINE;
+                }
+                SteamStatus steamStatus = SteamCrawler.getStatus(steamId);
 
-    @Override
-    public void refreshData() {
-        OnlineStatus discordStatus;
-        if (MeAPI.getDiscordBot().getJda() != null) {
-            discordStatus = MeAPI.getDiscordBot().getOnlineStatus(discordUserTag);
-        } else {
-            discordStatus = OnlineStatus.OFFLINE;
-        }
-        SteamStatus steamStatus = SteamCrawler.getStatus(steamId);
-
-        JSONObject object = new JSONObject();
-        object.put("discord", discordStatus == null ? JSONObject.NULL : discordStatus);
-        JSONObject steam = new JSONObject();
-        steam.put("status", steamStatus.getStatus() == null ? JSONObject.NULL : steamStatus.getStatus());
-        steam.put("game", steamStatus.getGame() == null ? JSONObject.NULL : steamStatus.getGame());
-        object.put("steam", steam);
-        cachedResponse = object.toString();
+                JSONObject object = new JSONObject();
+                object.put("discord", discordStatus);
+                JSONObject steam = new JSONObject();
+                steam.put("status", steamStatus.getStatus() == null ? JSONObject.NULL : steamStatus.getStatus());
+                steam.put("game", steamStatus.getGame() == null ? JSONObject.NULL : steamStatus.getGame());
+                object.put("steam", steam);
+                cachedResponse = object.toString();
+            }
+        };
     }
 
     @Override
@@ -62,4 +57,15 @@ public class OnlineEndpoint implements Endpoint {
         return 30 * 1000;
     }
 
+    @Override
+    public String path() {
+        return "/online";
+    }
+
+    @Override
+    public HttpResponse handle(@NotNull RequestMethod requestMethod, @NotNull URI uri, @NotNull Headers headers, @NotNull Map<String, String> map, @Nullable String s) {
+        if (requestMethod != RequestMethod.GET) return JsonResponse.create("{}", 405);
+        if (cachedResponse == null) return JsonResponse.create("{}", 500);
+        return JsonResponse.create(cachedResponse, 200);
+    }
 }

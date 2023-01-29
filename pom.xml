@@ -70,6 +70,11 @@
 
     <dependencies>
         <dependency>
+            <groupId>com.github.YouHaveTrouble</groupId>
+            <artifactId>JankWebServer</artifactId>
+            <version>4ad6a2dac4</version>
+        </dependency>
+        <dependency>
             <groupId>io.github.cdimascio</groupId>
             <artifactId>java-dotenv</artifactId>
             <version>5.2.2</version>
@@ -77,17 +82,17 @@
         <dependency>
             <groupId>org.json</groupId>
             <artifactId>json</artifactId>
-            <version>20220320</version>
+            <version>20220924</version>
         </dependency>
         <dependency>
             <groupId>net.dv8tion</groupId>
             <artifactId>JDA</artifactId>
-            <version>5.0.0-alpha.17</version>
+            <version>5.0.0-beta.3</version>
         </dependency>
         <dependency>
             <groupId>org.jsoup</groupId>
             <artifactId>jsoup</artifactId>
-            <version>1.15.2</version>
+            <version>1.15.3</version>
         </dependency>
     </dependencies>
 

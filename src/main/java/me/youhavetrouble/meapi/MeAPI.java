@@ -1,62 +1,58 @@
 package me.youhavetrouble.meapi;
 
-import com.sun.net.httpserver.HttpServer;
 import io.github.cdimascio.dotenv.Dotenv;
-import me.youhavetrouble.meapi.discord.DiscordBot;
-import me.youhavetrouble.meapi.endpoints.Endpoint;
+import me.youhavetrouble.jankwebserver.JankWebServer;
+import me.youhavetrouble.meapi.datacollectors.discord.DiscordBot;
 import me.youhavetrouble.meapi.endpoints.OnlineEndpoint;
-import me.youhavetrouble.meapi.endpoints.RootHandler;
+import me.youhavetrouble.meapi.endpoints.RootEndpoint;
 import me.youhavetrouble.meapi.endpoints.games.FinalFantasyEndpoint;
 
 import java.io.IOException;
-import java.net.InetSocketAddress;
-import java.util.HashSet;
 import java.util.Timer;
-import java.util.TimerTask;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadPoolExecutor;
+import java.util.logging.Logger;
 
 public class MeAPI {
 
-    private static final Dotenv env = Dotenv.load();
-
-    static int port = Integer.parseInt(getEnvValue("APP_PORT"));
-
+    public static Logger logger = Logger.getLogger("MeAPI");
+    private static final Dotenv env = Dotenv.configure().ignoreIfMissing().load();
+    static int port = getEnvValue("APP_PORT") == null ? 80 : Integer.parseInt(getEnvValue("APP_PORT"));
     private static DiscordBot discordBot;
-
-    private static final HashSet<Endpoint> endpoints = new HashSet<>();
-    private static final HashSet<Timer> timers = new HashSet<>();
 
     public static void main(String[] args) throws IOException {
 
-        String discordBotKey = getEnvValue("DISCORD_BOT_KEY");
+        for (String arg : args) {
+            if (arg.startsWith("port=")) {
+                arg = arg.replaceFirst("port=", "");
+                try {
+                    port = Integer.parseInt(arg);
+                } catch (NumberFormatException e) {
+                    logger.severe(String.format("Could not parse port number from arg port=%s", arg));
+                    System.exit(1);
+                }
+            }
+        }
 
+        JankWebServer webServer = JankWebServer.create(port, 16);
+
+        String discordBotKey = getEnvValue("DISCORD_BOT_KEY");
         if (discordBotKey != null) {
             discordBot = new DiscordBot(discordBotKey);
             discordBot.start();
         }
 
-        endpoints.add(new OnlineEndpoint());
-        if (getEnvValue("FFXIV_CHARACTER_ID") != null) endpoints.add(new FinalFantasyEndpoint());
+        webServer.registerEndpoint(new RootEndpoint());
 
-        HttpServer server = HttpServer.create(new InetSocketAddress(port), 0);
-        server.createContext("/", new RootHandler());
+        OnlineEndpoint onlineEndpoint = new OnlineEndpoint();
+        Timer onlineEndpointTimer = new Timer("onlineEndpoint", true);
+        onlineEndpointTimer.scheduleAtFixedRate(onlineEndpoint.getTimerTask(), 2000, onlineEndpoint.refreshInterval());
+        webServer.registerEndpoint(onlineEndpoint);
 
-        endpoints.forEach(endpoint -> {
-            server.createContext(endpoint.getId(), endpoint);
-            Timer timer = new Timer(endpoint.getId());
-            timer.scheduleAtFixedRate(new TimerTask() {
-                @Override
-                public void run() {
-                    endpoint.refreshData();
-                }
-            }, 2000, endpoint.refreshInterval());
-            timers.add(timer);
-        });
-        ThreadPoolExecutor threadPoolExecutor = (ThreadPoolExecutor) Executors.newFixedThreadPool(16);
-        server.setExecutor(threadPoolExecutor);
-        System.out.println("Server started at " + port);
-        server.start();
+        FinalFantasyEndpoint finalFantasyEndpoint = new FinalFantasyEndpoint();
+        Timer finalFantasyEndpointTimer = new Timer("ffEndpointTimer", true);
+        finalFantasyEndpointTimer.scheduleAtFixedRate(finalFantasyEndpoint.getTimerTask(), 0, finalFantasyEndpoint.refreshInterval());
+        webServer.registerEndpoint(finalFantasyEndpoint);
+
+        webServer.start();
     }
 
     public static DiscordBot getDiscordBot() {

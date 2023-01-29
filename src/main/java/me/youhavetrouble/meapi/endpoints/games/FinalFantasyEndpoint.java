@@ -1,84 +1,56 @@
 package me.youhavetrouble.meapi.endpoints.games;
 
-import com.sun.net.httpserver.HttpExchange;
+import com.sun.net.httpserver.Headers;
+import me.youhavetrouble.jankwebserver.RequestMethod;
+import me.youhavetrouble.jankwebserver.endpoint.Endpoint;
+import me.youhavetrouble.jankwebserver.response.HttpResponse;
+import me.youhavetrouble.jankwebserver.response.JsonResponse;
 import me.youhavetrouble.meapi.MeAPI;
-import me.youhavetrouble.meapi.endpoints.Endpoint;
-import org.json.JSONArray;
+import me.youhavetrouble.meapi.datacollectors.ffxiv.FFCrawler;
+import me.youhavetrouble.meapi.endpoints.TimedDataRefresh;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.json.JSONObject;
-import org.json.JSONTokener;
 
-import java.io.IOException;
-import java.io.OutputStream;
-import java.net.URL;
-import java.util.Scanner;
+import java.net.URI;
+import java.util.Map;
+import java.util.TimerTask;
 
-public class FinalFantasyEndpoint implements Endpoint {
+public class FinalFantasyEndpoint implements Endpoint, TimedDataRefresh {
 
     private final String characterId;
-    private String ffxivData = "{}";
+    private String ffxivData = null;
 
     public FinalFantasyEndpoint() {
         characterId = MeAPI.getEnvValue("FFXIV_CHARACTER_ID");
     }
 
-    @Override
-    public void handle(HttpExchange httpExchange) throws IOException {
-        OutputStream outputStream = httpExchange.getResponseBody();
-        String htmlResponse = ffxivData;
-        httpExchange.getResponseHeaders().set("Content-Type", "application/json");
-        httpExchange.sendResponseHeaders(200, htmlResponse.length());
-        outputStream.write(htmlResponse.getBytes());
-        outputStream.flush();
-        outputStream.close();
-    }
 
     @Override
-    public String getId() {
-        return "/games/ffxiv";
+    public TimerTask getTimerTask() {
+        return new TimerTask() {
+            @Override
+            public void run() {
+                if (characterId == null) return;
+                JSONObject newData = FFCrawler.getData(characterId);
+                if (newData != null) ffxivData = newData.toString();
+            }
+        };
     }
 
-    @Override
-    public void refreshData() {
-        JSONObject newData = getData(characterId);
-        if (newData != null) this.ffxivData = newData.toString();
-    }
-
-    @Override
     public int refreshInterval() {
         return 30 * 1000;
     }
 
-    private JSONObject getData(String characterId) {
-        try {
-            URL url = new URL("https://xivapi.com/character/"+characterId);
-            Scanner scanner = new Scanner(url.openStream());
-            JSONTokener tokener = new JSONTokener(scanner.useDelimiter("\\Z").next());
-            JSONObject jsonObject = new JSONObject(tokener);
+    @Override
+    public String path() {
+        return "/games/ffxiv";
+    }
 
-            JSONObject newData = new JSONObject();
-
-            JSONObject character = jsonObject.getJSONObject("Character");
-            newData.put("datacenter", character.get("DC"));
-            newData.put("server", character.get("Server"));
-            newData.put("name", character.get("Name"));
-
-            JSONArray jobs = new JSONArray();
-
-            JSONArray jobsArray = character.getJSONArray("ClassJobs");
-            for (Object jobObject : jobsArray) {
-                JSONObject job = (JSONObject) jobObject;
-                JSONObject newJob = new JSONObject();
-                newJob.put("name", job.get("Name"));
-                newJob.put("level", job.get("Level"));
-                jobs.put(newJob);
-            }
-            newData.put("jobs", jobs);
-            newData.put("portrait_url", character.get("Portrait"));
-
-            return newData;
-        } catch (IOException e) {
-            System.out.println(e.getMessage());
-            return null;
-        }
+    @Override
+    public HttpResponse handle(@NotNull RequestMethod requestMethod, @NotNull URI uri, @NotNull Headers headers, @NotNull Map<String, String> map, @Nullable String s) {
+        if (requestMethod != RequestMethod.GET) return JsonResponse.create("{}", 405);
+        if (ffxivData == null) return JsonResponse.create("{}", 500);
+        return JsonResponse.create(ffxivData, 200);
     }
 }

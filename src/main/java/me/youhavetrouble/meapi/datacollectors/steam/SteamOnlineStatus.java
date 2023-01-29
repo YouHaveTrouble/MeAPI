@@ -1,4 +1,4 @@
-package me.youhavetrouble.meapi.steam;
+package me.youhavetrouble.meapi.datacollectors.steam;
 
 public enum SteamOnlineStatus {
     ONLINE,
