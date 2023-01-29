@@ -1,5 +1,6 @@
 package me.youhavetrouble.meapi.datacollectors.ffxiv;
 
+import me.youhavetrouble.meapi.MeAPI;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.JSONTokener;
@@ -39,7 +40,7 @@ public class FFCrawler {
 
             return newData;
         } catch (IOException e) {
-            System.out.println(e.getMessage());
+            MeAPI.logger.warning(String.format("Got an error while getting FF XIV character data: %s", e.getMessage()));
             return null;
         }
     }

@@ -9,9 +9,11 @@ import me.youhavetrouble.meapi.endpoints.games.FinalFantasyEndpoint;
 
 import java.io.IOException;
 import java.util.Timer;
+import java.util.logging.Logger;
 
 public class MeAPI {
 
+    public static Logger logger = Logger.getLogger("MeAPI");
     private static final Dotenv env = Dotenv.load();
     static int port = Integer.parseInt(getEnvValue("APP_PORT"));
     private static DiscordBot discordBot;
