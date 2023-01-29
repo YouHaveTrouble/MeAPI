@@ -27,6 +27,7 @@ public class MeAPI {
                     port = Integer.parseInt(arg);
                 } catch (NumberFormatException e) {
                     logger.severe(String.format("Could not parse port number from arg port=%s", arg));
+                    System.exit(1);
                 }
             }
         }
