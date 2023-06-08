@@ -14,11 +14,11 @@ public class DiscordBot extends Thread {
     private final String token;
 
     private JDA jda;
-    private final String discordUserTag;
+    private final String discordUserId;
 
     public DiscordBot(String token) {
         this.token = token;
-        this.discordUserTag = MeAPI.getEnvValue("DISCORD_USER_TAG");
+        this.discordUserId = MeAPI.getEnvValue("DISCORD_USER_ID");
     }
 
     @Override
@@ -33,9 +33,9 @@ public class DiscordBot extends Thread {
     }
 
     public OnlineStatus getOnlineStatus() {
-        if (discordUserTag == null) return OnlineStatus.OFFLINE;
+        if (discordUserId == null) return OnlineStatus.OFFLINE;
         for (Guild guild : jda.getGuilds()) {
-            Member member = guild.getMemberByTag(discordUserTag);
+            Member member = guild.getMemberById(discordUserId);
             if (member != null) {
                 return member.getOnlineStatus();
             }
