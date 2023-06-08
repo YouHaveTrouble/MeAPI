@@ -1,0 +1,72 @@
+{
+  "_comment": "Pterodactyl egg for MeAPI",
+  "meta": {
+    "version": "PTDL_v2",
+    "update_url": null
+  },
+  "exported_at": "2023-06-08T16:19:41+02:00",
+  "name": "MeAPI",
+  "author": "youhavetrouble@youhavetrouble.me",
+  "description": "Pterodactyl egg for MeAPI",
+  "features": null,
+  "docker_images": {
+    "Java 17": "ghcr.io\/pterodactyl\/yolks:java_17"
+  },
+  "file_denylist": [],
+  "startup": "java -Xms128M -Xmx512M -Dterminal.jline=false -Dterminal.ansi=true -jar {{SERVER_JARFILE}} port={{SERVER_PORT}}",
+  "config": {
+    "files": "{}",
+    "startup": "{\r\n    \"done\": \"Started web server on port\"\r\n}",
+    "logs": "{}",
+    "stop": "^C"
+  },
+  "scripts": {
+    "installation": {
+      "script": null,
+      "container": "alpine:3.4",
+      "entrypoint": "ash"
+    }
+  },
+  "variables": [
+    {
+      "name": "Discord bot key",
+      "description": "Key for discord bot that will be used for updating online information",
+      "env_variable": "DISCORD_BOT_KEY",
+      "default_value": "",
+      "user_viewable": true,
+      "user_editable": true,
+      "rules": "string|max:128",
+      "field_type": "text"
+    },
+    {
+      "name": "Discord user ID",
+      "description": "User for which to check online status. This should be discord snowflake id.\r\nYou can get it by enabling developer mode in discord and right clicking on a user.",
+      "env_variable": "DISCORD_USER_ID",
+      "default_value": "",
+      "user_viewable": true,
+      "user_editable": true,
+      "rules": "string|max:18",
+      "field_type": "text"
+    },
+    {
+      "name": "Steam name",
+      "description": "Steam name to be used to check current game and online status",
+      "env_variable": "STEAM_NAME",
+      "default_value": "",
+      "user_viewable": true,
+      "user_editable": true,
+      "rules": "string|max:128",
+      "field_type": "text"
+    },
+    {
+      "name": "FFXIV character ID",
+      "description": "To get this id, search your character on lodestone https:\/\/na.finalfantasyxiv.com\/lodestone\/character\/ .\r\nAfter clicking on your character, the last part of the url is your character id.",
+      "env_variable": "FFXIV_CHARACTER_ID",
+      "default_value": "",
+      "user_viewable": true,
+      "user_editable": true,
+      "rules": "int",
+      "field_type": "text"
+    }
+  ]
+}
