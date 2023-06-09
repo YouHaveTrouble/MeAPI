@@ -67,6 +67,26 @@
       "user_editable": true,
       "rules": "int",
       "field_type": "text"
+    },
+    {
+      "name": "LoL region",
+      "description": "Region ID.",
+      "env_variable": "LOL_REGION",
+      "default_value": "eune",
+      "user_viewable": true,
+      "user_editable": true,
+      "rules": "string|max:5",
+      "field_type": "text"
+    },
+    {
+      "name": "LoL summoner name",
+      "description": "Summoner name for LoL",
+      "env_variable": "LOL_SUMMONER_NAME",
+      "default_value": "",
+      "user_viewable": true,
+      "user_editable": true,
+      "rules": "string|max:64",
+      "field_type": "text"
     }
   ]
 }
