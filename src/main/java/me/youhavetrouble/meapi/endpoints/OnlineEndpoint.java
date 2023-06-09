@@ -34,7 +34,7 @@ public class OnlineEndpoint implements Endpoint, TimedDataRefresh {
             @Override
             public void run() {
                 OnlineStatus discordStatus;
-                if (MeAPI.getDiscordBot().getJda() != null) {
+                if (MeAPI.getDiscordBot() != null && MeAPI.getDiscordBot().getJda() != null) {
                     discordStatus = MeAPI.getDiscordBot().getOnlineStatus();
                 } else {
                     discordStatus = OnlineStatus.OFFLINE;
