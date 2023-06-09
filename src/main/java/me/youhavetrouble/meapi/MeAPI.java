@@ -6,6 +6,7 @@ import me.youhavetrouble.meapi.datacollectors.discord.DiscordBot;
 import me.youhavetrouble.meapi.endpoints.OnlineEndpoint;
 import me.youhavetrouble.meapi.endpoints.RootEndpoint;
 import me.youhavetrouble.meapi.endpoints.games.FinalFantasyEndpoint;
+import me.youhavetrouble.meapi.endpoints.games.LeagueOfLegendsEndpoint;
 
 import java.io.IOException;
 import java.util.Timer;
@@ -51,6 +52,11 @@ public class MeAPI {
         Timer finalFantasyEndpointTimer = new Timer("ffEndpointTimer", true);
         finalFantasyEndpointTimer.scheduleAtFixedRate(finalFantasyEndpoint.getTimerTask(), 0, finalFantasyEndpoint.refreshInterval());
         webServer.registerEndpoint(finalFantasyEndpoint);
+
+        LeagueOfLegendsEndpoint leagueOfLegendsEndpoint = new LeagueOfLegendsEndpoint();
+        Timer leagueOfLegendsEndpointTimer = new Timer("lolEndpointTimer", true);
+        leagueOfLegendsEndpointTimer.scheduleAtFixedRate(leagueOfLegendsEndpoint.getTimerTask(), 0, leagueOfLegendsEndpoint.refreshInterval());
+        webServer.registerEndpoint(leagueOfLegendsEndpoint);
 
         webServer.start();
     }
