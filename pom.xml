@@ -6,7 +6,7 @@
 
     <groupId>me.youhavetrouble</groupId>
     <artifactId>MeAPI</artifactId>
-    <version>1.2.1</version>
+    <version>1.2.2</version>
 
     <properties>
         <java.version>17</java.version>
@@ -72,7 +72,7 @@
         <dependency>
             <groupId>com.github.YouHaveTrouble</groupId>
             <artifactId>JankWebServer</artifactId>
-            <version>20231025</version>
+            <version>20231101</version>
         </dependency>
         <dependency>
             <groupId>io.github.cdimascio</groupId>
@@ -82,7 +82,7 @@
         <dependency>
             <groupId>org.json</groupId>
             <artifactId>json</artifactId>
-            <version>20230618</version>
+            <version>20231013</version>
         </dependency>
         <dependency>
             <groupId>net.dv8tion</groupId>
