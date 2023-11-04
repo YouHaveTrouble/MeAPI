@@ -22,7 +22,7 @@ public class LeagueOfLegendsEndpoint implements Endpoint, TimedDataRefresh {
     private final String riotRegion;
 
     private String summonerId = null;
-    private String summonerName;
+    private final String summonerName;
 
     private SummonerData summonerData = null;
 
@@ -54,7 +54,8 @@ public class LeagueOfLegendsEndpoint implements Endpoint, TimedDataRefresh {
                 if (summonerName == null || riotRegion == null) return;
                 if (i >= 5) i = 0;
                 if (i++ == 0) summonerData = OpggCrawler.getSummonerData(summonerName, riotRegion);
-                if (summonerData != null) summonerId = summonerData.getId();
+                if (summonerData == null) return;
+                summonerId = summonerData.getId();
                 if (summonerId == null) return;
                 JSONObject liveGameData = OpggCrawler.getLiveGameData(summonerId, riotRegion);
                 summonerData.setLiveGame(liveGameData);
