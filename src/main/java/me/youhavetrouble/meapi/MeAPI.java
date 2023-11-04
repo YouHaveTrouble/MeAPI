@@ -10,6 +10,7 @@ import me.youhavetrouble.meapi.endpoints.games.LeagueOfLegendsEndpoint;
 
 import java.io.IOException;
 import java.util.Timer;
+import java.util.concurrent.Executors;
 import java.util.logging.Logger;
 
 public class MeAPI {
@@ -33,7 +34,7 @@ public class MeAPI {
             }
         }
 
-        JankWebServer webServer = JankWebServer.create(port, 16);
+        JankWebServer webServer = JankWebServer.create(port, Executors.newVirtualThreadPerTaskExecutor());
 
         String discordBotKey = getEnvValue("DISCORD_BOT_KEY");
         if (discordBotKey != null) {
