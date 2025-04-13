@@ -32,7 +32,7 @@ public class FFCrawler {
                 String[] worldParts = world.split("\\[");
                 if (worldParts.length == 2) {
                     datacenter = worldParts[0].trim();
-                    server = worldParts[1].trim();
+                    server = worldParts[1].replace("]", "").trim();
                 } else {
                     MeAPI.logger.warning("Could not parse datacenter and server from world string: " + world);
                 }
