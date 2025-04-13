@@ -39,7 +39,7 @@ public class FinalFantasyEndpoint implements Endpoint, TimedDataRefresh {
     }
 
     public int refreshInterval() {
-        return 30 * 1000;
+        return 60 * 60 * 1000; // 1 hour
     }
 
     @Override

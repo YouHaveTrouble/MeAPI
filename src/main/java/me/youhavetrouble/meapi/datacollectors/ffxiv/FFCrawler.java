@@ -3,40 +3,77 @@ package me.youhavetrouble.meapi.datacollectors.ffxiv;
 import me.youhavetrouble.meapi.MeAPI;
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.json.JSONTokener;
+import org.jsoup.Connection;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 
 import java.io.IOException;
+import java.net.URI;
 import java.net.URL;
-import java.util.Scanner;
 
 public class FFCrawler {
 
     public static JSONObject getData(String characterId) {
         try {
-            URL url = new URL("https://xivapi.com/character/"+characterId);
-            Scanner scanner = new Scanner(url.openStream());
-            JSONTokener tokener = new JSONTokener(scanner.useDelimiter("\\Z").next());
-            JSONObject jsonObject = new JSONObject(tokener);
+            URL url = URI.create("https://na.finalfantasyxiv.com/lodestone/character/"+characterId).toURL();
+            Connection connection = Jsoup.connect(url.toString());
+            Document document = connection.get();
 
             JSONObject newData = new JSONObject();
 
-            JSONObject character = jsonObject.getJSONObject("Character");
-            newData.put("datacenter", character.get("DC"));
-            newData.put("server", character.get("Server"));
-            newData.put("name", character.get("Name"));
+            String datacenter = null;
+            String server = null;
+
+            Element worldElement = document.selectFirst(".frame__chara__world");
+            if (worldElement != null) {
+                String world = worldElement.ownText();
+                String[] worldParts = world.split("\\[");
+                if (worldParts.length == 2) {
+                    datacenter = worldParts[0].trim();
+                    server = worldParts[1].trim();
+                } else {
+                    MeAPI.logger.warning("Could not parse datacenter and server from world string: " + world);
+                }
+            }
+
+            String name = document.getElementsByClass("frame__chara__name").text();
+
+            newData.put("datacenter", datacenter == null ? JSONObject.NULL : datacenter);
+            newData.put("server", server == null ? JSONObject.NULL : server);
+            newData.put("name", name);
 
             JSONArray jobs = new JSONArray();
 
-            JSONArray jobsArray = character.getJSONArray("ClassJobs");
-            for (Object jobObject : jobsArray) {
-                JSONObject job = (JSONObject) jobObject;
+            Elements jobsList = document.select(".character__level__list ul li");
+            for (Element listElement : jobsList) {
+                Element imageElement = listElement.selectFirst("img");
+                if (imageElement == null) continue;
+                String jobName = imageElement.dataset().getOrDefault("tooltip", "Unknown");
+                String jobLevel = listElement.ownText();
+                int level = -1;
+                try {
+                    level = Integer.parseInt(jobLevel);
+                } catch (NumberFormatException e) {
+                    MeAPI.logger.warning("Could not parse job level: " + jobLevel);
+                    continue;
+                }
                 JSONObject newJob = new JSONObject();
-                newJob.put("name", job.get("Name"));
-                newJob.put("level", job.get("Level"));
+                newJob.put("name", jobName);
+                newJob.put("level", level);
                 jobs.put(newJob);
             }
             newData.put("jobs", jobs);
-            newData.put("portrait_url", character.get("Portrait"));
+
+            Elements portraitElement = document.getElementsByClass("character__detail__image");
+            if (portraitElement.isEmpty()) {
+                MeAPI.logger.warning("Could not find character portrait element");
+                newData.put("portrait_url", JSONObject.NULL);
+            } else {
+                String portraitUrl = portraitElement.select("a").attr("href");
+                newData.put("portrait_url", portraitUrl);
+            }
 
             return newData;
         } catch (IOException e) {
