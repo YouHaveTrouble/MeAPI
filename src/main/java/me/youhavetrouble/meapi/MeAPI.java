@@ -1,15 +1,14 @@
 package me.youhavetrouble.meapi;
 
 import io.github.cdimascio.dotenv.Dotenv;
-import me.youhavetrouble.jankwebserver.JankWebServer;
 import me.youhavetrouble.meapi.datacollectors.discord.DiscordBot;
 import me.youhavetrouble.meapi.endpoints.OnlineEndpoint;
 import me.youhavetrouble.meapi.endpoints.RootEndpoint;
 import me.youhavetrouble.meapi.endpoints.games.FinalFantasyEndpoint;
+import me.youhavetrouble.meapi.webserver.WebServer;
 
 import java.io.IOException;
 import java.util.Timer;
-import java.util.concurrent.Executors;
 import java.util.logging.Logger;
 
 public class MeAPI {
@@ -33,7 +32,7 @@ public class MeAPI {
             }
         }
 
-        JankWebServer webServer = JankWebServer.create(port, Executors.newVirtualThreadPerTaskExecutor());
+        WebServer webServer = new WebServer(port);
 
         String discordBotKey = getEnvValue("DISCORD_BOT_KEY");
         if (discordBotKey != null) {
@@ -41,17 +40,17 @@ public class MeAPI {
             discordBot.start();
         }
 
-        webServer.registerEndpoint(new RootEndpoint());
+        webServer.registerEndpoint("/", new RootEndpoint());
 
         OnlineEndpoint onlineEndpoint = new OnlineEndpoint();
         Timer onlineEndpointTimer = new Timer("onlineEndpoint", true);
         onlineEndpointTimer.scheduleAtFixedRate(onlineEndpoint.getTimerTask(), 2000, onlineEndpoint.refreshInterval());
-        webServer.registerEndpoint(onlineEndpoint);
+        webServer.registerEndpoint("/online", onlineEndpoint);
 
         FinalFantasyEndpoint finalFantasyEndpoint = new FinalFantasyEndpoint();
         Timer finalFantasyEndpointTimer = new Timer("ffEndpointTimer", true);
         finalFantasyEndpointTimer.scheduleAtFixedRate(finalFantasyEndpoint.getTimerTask(), 0, finalFantasyEndpoint.refreshInterval());
-        webServer.registerEndpoint(finalFantasyEndpoint);
+        webServer.registerEndpoint("/games/ffxiv", finalFantasyEndpoint);
 
         webServer.start();
     }

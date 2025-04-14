@@ -70,11 +70,6 @@
 
     <dependencies>
         <dependency>
-            <groupId>com.github.YouHaveTrouble</groupId>
-            <artifactId>JankWebServer</artifactId>
-            <version>20231101</version>
-        </dependency>
-        <dependency>
             <groupId>io.github.cdimascio</groupId>
             <artifactId>java-dotenv</artifactId>
             <version>5.2.2</version>

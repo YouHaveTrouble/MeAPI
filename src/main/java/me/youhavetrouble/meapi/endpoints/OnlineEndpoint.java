@@ -1,23 +1,18 @@
 package me.youhavetrouble.meapi.endpoints;
 
-import com.sun.net.httpserver.Headers;
-import me.youhavetrouble.jankwebserver.RequestMethod;
-import me.youhavetrouble.jankwebserver.endpoint.Endpoint;
-import me.youhavetrouble.jankwebserver.response.HttpResponse;
-import me.youhavetrouble.jankwebserver.response.JsonResponse;
+import com.sun.net.httpserver.HttpExchange;
+import com.sun.net.httpserver.HttpHandler;
 import me.youhavetrouble.meapi.MeAPI;
 import me.youhavetrouble.meapi.datacollectors.steam.SteamCrawler;
 import me.youhavetrouble.meapi.datacollectors.steam.SteamStatus;
 import net.dv8tion.jda.api.OnlineStatus;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import org.json.JSONObject;
 
-import java.net.URI;
-import java.util.Map;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.TimerTask;
 
-public class OnlineEndpoint implements Endpoint, TimedDataRefresh {
+public class OnlineEndpoint implements HttpHandler, TimedDataRefresh {
 
     private final String steamId;
 
@@ -58,14 +53,23 @@ public class OnlineEndpoint implements Endpoint, TimedDataRefresh {
     }
 
     @Override
-    public String path() {
-        return "/online";
-    }
-
-    @Override
-    public HttpResponse handle(@NotNull RequestMethod requestMethod, @NotNull URI uri, @NotNull Headers headers, @NotNull Map<String, String> map, @Nullable String s) {
-        if (requestMethod != RequestMethod.GET) return JsonResponse.create("{}", 405);
-        if (cachedResponse == null) return JsonResponse.create("{}", 500);
-        return JsonResponse.create(cachedResponse, 200);
+    public void handle(HttpExchange httpExchange) throws IOException {
+        try (HttpExchange exchange = httpExchange) {
+            if (!exchange.getRequestMethod().equalsIgnoreCase("GET")) {
+                exchange.sendResponseHeaders(405, -1);
+                exchange.close();
+                return;
+            }
+            if (cachedResponse == null) {
+                exchange.sendResponseHeaders(404, -1);
+                exchange.close();
+                return;
+            }
+            exchange.getResponseHeaders().set("Content-Type", "application/json; charset=UTF-8");
+            exchange.sendResponseHeaders(200, cachedResponse.length());
+            exchange.getResponseBody().write(cachedResponse.getBytes(StandardCharsets.UTF_8));
+        } catch (Exception e) {
+            MeAPI.logger.warning("Error handling root endpoint: " + e.getMessage());
+        }
     }
 }

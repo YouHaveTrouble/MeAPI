@@ -1,22 +1,16 @@
 package me.youhavetrouble.meapi.endpoints.games;
 
-import com.sun.net.httpserver.Headers;
-import me.youhavetrouble.jankwebserver.RequestMethod;
-import me.youhavetrouble.jankwebserver.endpoint.Endpoint;
-import me.youhavetrouble.jankwebserver.response.HttpResponse;
-import me.youhavetrouble.jankwebserver.response.JsonResponse;
+import com.sun.net.httpserver.HttpExchange;
+import com.sun.net.httpserver.HttpHandler;
 import me.youhavetrouble.meapi.MeAPI;
 import me.youhavetrouble.meapi.datacollectors.ffxiv.FFCrawler;
 import me.youhavetrouble.meapi.endpoints.TimedDataRefresh;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import org.json.JSONObject;
 
-import java.net.URI;
-import java.util.Map;
+import java.nio.charset.StandardCharsets;
 import java.util.TimerTask;
 
-public class FinalFantasyEndpoint implements Endpoint, TimedDataRefresh {
+public class FinalFantasyEndpoint implements HttpHandler, TimedDataRefresh {
 
     private final String characterId;
     private String ffxivData = null;
@@ -25,7 +19,6 @@ public class FinalFantasyEndpoint implements Endpoint, TimedDataRefresh {
         characterId = MeAPI.getEnvValue("FFXIV_CHARACTER_ID");
     }
 
-
     @Override
     public TimerTask getTimerTask() {
         return new TimerTask() {
@@ -33,7 +26,8 @@ public class FinalFantasyEndpoint implements Endpoint, TimedDataRefresh {
             public void run() {
                 if (characterId == null) return;
                 JSONObject newData = FFCrawler.getData(characterId);
-                if (newData != null) ffxivData = newData.toString();
+                if (newData == null) return;
+                ffxivData = newData.toString();
             }
         };
     }
@@ -43,14 +37,27 @@ public class FinalFantasyEndpoint implements Endpoint, TimedDataRefresh {
     }
 
     @Override
-    public String path() {
-        return "/games/ffxiv";
+    public void handle(HttpExchange httpExchange) {
+        try (HttpExchange exchange = httpExchange) {
+            if (!exchange.getRequestMethod().equalsIgnoreCase("GET")) {
+                exchange.sendResponseHeaders(405, -1);
+                exchange.close();
+                return;
+            }
+
+            if (ffxivData == null) {
+                exchange.sendResponseHeaders(404, -1);
+                exchange.close();
+                return;
+            }
+
+            exchange.getResponseHeaders().set("Content-Type", "application/json; charset=UTF-8");
+            exchange.sendResponseHeaders(200, ffxivData.length());
+            exchange.getResponseBody().write(ffxivData.getBytes(StandardCharsets.UTF_8));
+        } catch (Exception e) {
+            MeAPI.logger.warning("Error handling FFXIV endpoint: " + e.getMessage());
+        }
+
     }
 
-    @Override
-    public HttpResponse handle(@NotNull RequestMethod requestMethod, @NotNull URI uri, @NotNull Headers headers, @NotNull Map<String, String> map, @Nullable String s) {
-        if (requestMethod != RequestMethod.GET) return JsonResponse.create("{}", 405);
-        if (ffxivData == null) return JsonResponse.create("{}", 500);
-        return JsonResponse.create(ffxivData, 200);
-    }
 }
