@@ -2,6 +2,7 @@ package me.youhavetrouble.meapi.webserver;
 
 import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
+import me.youhavetrouble.meapi.MeAPI;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -22,6 +23,7 @@ public class WebServer {
 
     public void start() {
         server.start();
+        MeAPI.logger.info("Started web server on port %s".formatted(server.getAddress().getPort()));
     }
 
     public void stop() {
