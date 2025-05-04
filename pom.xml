@@ -71,8 +71,9 @@
     <dependencies>
         <dependency>
             <groupId>io.github.cdimascio</groupId>
-            <artifactId>java-dotenv</artifactId>
-            <version>5.2.2</version>
+            <artifactId>dotenv-java</artifactId>
+            <version>3.2.0</version>
+            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>org.json</groupId>
