@@ -113,11 +113,11 @@ public class OnlineEndpoint implements HttpHandler, TimedDataRefresh {
             exchange.sendResponseHeaders(200, cachedResponse.length());
             exchange.getResponseBody().write(cachedResponse.getBytes(StandardCharsets.UTF_8));
         } catch (Exception e) {
-            MeAPI.logger.warning("Error handling root endpoint: " + e.getMessage() + " " + e.getCause().getClass().getName());
+            MeAPI.logger.warn("Error handling root endpoint: {} {}", e.getMessage(), e.getCause().getClass().getName());
         } finally {
             if (sseClients.remove(clientId) != null) {
                 // Remove the sse client queue
-                MeAPI.logger.info("SSE client disconnected: " + clientId);
+                MeAPI.logger.info("SSE client disconnected: {}", clientId);
             }
         }
     }

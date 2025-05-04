@@ -24,7 +24,7 @@ public class RootEndpoint implements HttpHandler {
             exchange.sendResponseHeaders(200, rootHtml.length());
             exchange.getResponseBody().write(rootHtml.getBytes(StandardCharsets.UTF_8));
         } catch (Exception e) {
-            MeAPI.logger.warning("Error handling root endpoint: " + e.getMessage());
+            MeAPI.logger.warn("Error handling root endpoint: {}", e.getMessage());
         }
     }
 }

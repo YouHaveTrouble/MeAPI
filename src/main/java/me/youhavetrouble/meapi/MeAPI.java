@@ -6,19 +6,22 @@ import me.youhavetrouble.meapi.endpoints.OnlineEndpoint;
 import me.youhavetrouble.meapi.endpoints.RootEndpoint;
 import me.youhavetrouble.meapi.endpoints.games.FinalFantasyEndpoint;
 import me.youhavetrouble.meapi.webserver.WebServer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.Timer;
-import java.util.logging.Logger;
+
 
 public class MeAPI {
 
-    public static Logger logger = Logger.getLogger("MeAPI");
+    public static Logger logger = LoggerFactory.getLogger("Server");
     private static final Dotenv env = Dotenv.configure().ignoreIfMissing().load();
     static int port = getEnvValue("APP_PORT") == null ? 80 : Integer.parseInt(getEnvValue("APP_PORT"));
     private static DiscordBot discordBot;
 
     public static void main(String[] args) throws IOException {
+
 
         for (String arg : args) {
             if (arg.startsWith("port=")) {
@@ -26,7 +29,7 @@ public class MeAPI {
                 try {
                     port = Integer.parseInt(arg);
                 } catch (NumberFormatException e) {
-                    logger.severe(String.format("Could not parse port number from arg port=%s", arg));
+                    logger.error("Could not parse port number from arg port={}", arg);
                     System.exit(1);
                 }
             }

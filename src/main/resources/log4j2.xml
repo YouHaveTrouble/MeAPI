@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<Configuration name="Console">
+
+    <Properties>
+        <Property name="LOG_PATTERN">[%d{yyyy-MM-dd HH:mm:ss}] [%t/%p]: %msg%n</Property>
+    </Properties>
+
+    <Appenders>
+
+        <Console name="ConsoleTerminal" target="SYSTEM_OUT" follow="true">
+            <PatternLayout pattern="[%d{HH:mm:ss}] [%t/%p]: %msg%n"/>
+        </Console>
+
+        <RollingRandomAccessFile name="File" fileName="logs/latest.log" filePattern="logs/%d{yyyy-MM-dd}-%i.log.gz" immediateFlush="true">
+            <PatternLayout pattern="[%d{yyyy-MM-dd HH:mm:ss}] [%t/%p]: %msg%n"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy/>
+                <OnStartupTriggeringPolicy/>
+            </Policies>
+        </RollingRandomAccessFile>
+    </Appenders>
+
+    <Loggers>
+        <Root level="INFO">
+            <AppenderRef ref="ConsoleTerminal"/>
+            <AppenderRef ref="File"/>
+        </Root>
+    </Loggers>
+
+</Configuration>

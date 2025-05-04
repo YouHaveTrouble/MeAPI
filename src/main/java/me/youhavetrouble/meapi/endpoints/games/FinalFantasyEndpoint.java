@@ -55,7 +55,7 @@ public class FinalFantasyEndpoint implements HttpHandler, TimedDataRefresh {
             exchange.sendResponseHeaders(200, ffxivData.length());
             exchange.getResponseBody().write(ffxivData.getBytes(StandardCharsets.UTF_8));
         } catch (Exception e) {
-            MeAPI.logger.warning("Error handling FFXIV endpoint: " + e.getMessage());
+            MeAPI.logger.warn("Error handling FFXIV endpoint: {}", e.getMessage());
         }
 
     }

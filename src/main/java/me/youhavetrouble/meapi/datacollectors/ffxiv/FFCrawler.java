@@ -34,7 +34,7 @@ public class FFCrawler {
                     datacenter = worldParts[0].trim();
                     server = worldParts[1].replace("]", "").trim();
                 } else {
-                    MeAPI.logger.warning("Could not parse datacenter and server from world string: " + world);
+                    MeAPI.logger.warn("Could not parse datacenter and server from world string: {}", world);
                 }
             }
 
@@ -56,7 +56,7 @@ public class FFCrawler {
                 try {
                     level = Integer.parseInt(jobLevel);
                 } catch (NumberFormatException e) {
-                    MeAPI.logger.warning("Could not parse job level: " + jobLevel);
+                    MeAPI.logger.warn("Could not parse job level: {}", jobLevel);
                     continue;
                 }
                 JSONObject newJob = new JSONObject();
@@ -68,7 +68,7 @@ public class FFCrawler {
 
             Elements portraitElement = document.getElementsByClass("character__detail__image");
             if (portraitElement.isEmpty()) {
-                MeAPI.logger.warning("Could not find character portrait element");
+                MeAPI.logger.warn("Could not find character portrait element");
                 newData.put("portrait_url", JSONObject.NULL);
             } else {
                 String portraitUrl = portraitElement.select("a").attr("href");
@@ -77,7 +77,7 @@ public class FFCrawler {
 
             return newData;
         } catch (IOException e) {
-            MeAPI.logger.warning(String.format("Got an error while getting FF XIV character data: %s", e.getMessage()));
+            MeAPI.logger.warn("Got an error while getting FF XIV character data: {}", e.getMessage());
             return null;
         }
     }
