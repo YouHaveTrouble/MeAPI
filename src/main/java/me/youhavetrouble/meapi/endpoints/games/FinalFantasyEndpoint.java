@@ -52,6 +52,7 @@ public class FinalFantasyEndpoint implements HttpHandler, TimedDataRefresh {
             }
 
             exchange.getResponseHeaders().set("Content-Type", "application/json; charset=UTF-8");
+            exchange.getResponseHeaders().set("Access-Control-Allow-Origin", "*");
             exchange.sendResponseHeaders(200, ffxivData.length());
             exchange.getResponseBody().write(ffxivData.getBytes(StandardCharsets.UTF_8));
         } catch (Exception e) {

@@ -93,6 +93,7 @@ public class OnlineEndpoint implements HttpHandler, TimedDataRefresh {
                 sseClients.put(clientId, queue); // Store the client queue
                 MeAPI.logger.info("SSE client connected: " + clientId);
                 exchange.getResponseHeaders().set("Content-Type", "text/event-stream; charset=UTF-8");
+                exchange.getResponseHeaders().set("Access-Control-Allow-Origin", "*");
                 exchange.getResponseHeaders().set("Cache-Control", "no-cache");
                 exchange.sendResponseHeaders(200, 0);
 
@@ -110,6 +111,7 @@ public class OnlineEndpoint implements HttpHandler, TimedDataRefresh {
 
             // Handle regular JSON response
             exchange.getResponseHeaders().set("Content-Type", "application/json; charset=UTF-8");
+            exchange.getResponseHeaders().set("Access-Control-Allow-Origin", "*");
             exchange.sendResponseHeaders(200, cachedResponse.length());
             exchange.getResponseBody().write(cachedResponse.getBytes(StandardCharsets.UTF_8));
         } catch (Exception e) {
